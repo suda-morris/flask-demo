@@ -58,5 +58,10 @@ def monitor():
     return render_template("monitor.html")
 
 
+@app.route("/publish_question/")
+def publish_question():
+    return render_template("publish_question.html")
+
+
 if __name__ == "__main__":
     app.run()
