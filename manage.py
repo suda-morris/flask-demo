@@ -4,6 +4,7 @@ from flask_script import Manager
 
 from app import app
 from exts import db
+from models import User
 
 manager = Manager(app)
 
