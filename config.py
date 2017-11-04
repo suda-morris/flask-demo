@@ -3,9 +3,10 @@ import os
 
 DEBUG = False
 
+SECRET_KEY = os.urandom(24)
+
 DIALECT = "sqlite"
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
-DATABASE = os.path.join(BASEDIR, 'data.sqlite')
+DATABASE = os.path.join(BASEDIR, 'app.sqlite')
 SQLALCHEMY_DATABASE_URI = "{}:///{}".format(DIALECT, DATABASE)
-SQLALCHEMY_COMMIT_ON_TEARDOWN = True
 SQLALCHEMY_TRACK_MODIFICATIONS = False

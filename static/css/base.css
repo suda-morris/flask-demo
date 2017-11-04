@@ -1,0 +1,16 @@
+body{
+    background: #f3f3f3;
+}
+
+.nav-logo{
+    width: 80px;
+    height: 35px;
+}
+
+.body-main{
+    background: #fff;
+    width: 750px;
+    margin: 0 auto;
+    padding: 10px;
+    overflow: hidden;
+}
