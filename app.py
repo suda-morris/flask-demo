@@ -2,8 +2,9 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 
 import config
+from decorators import login_required
 from exts import db
-from models import User
+from models import User, Question
 
 app = Flask(__name__)
 app.config.from_object(config)
@@ -31,6 +32,12 @@ def login():
             return u"该用户不存在!"
 
 
+@app.route("/logout/")
+def logout():
+    session.clear()
+    return redirect(url_for("login"))
+
+
 @app.route("/register/", methods=["GET", "POST"])
 def register():
     if request.method == "GET":
@@ -53,14 +60,42 @@ def register():
                 return u"两次密码不相同，请核对后再填写！"
 
 
+@app.route("/question/", methods=["GET", "POST"])
+@login_required
+def question():
+    if request.method == "GET":
+        return render_template("question.html")
+    else:
+        title = request.form.get("title")
+        content = request.form.get("content")
+        user_id = session.get("user_id")
+        user = User.query.filter(User.id == user_id).first()
+        newquestion = Question(title=title, content=content)
+        newquestion.author = user
+        db.session.add(newquestion)
+        db.session.commit()
+        return redirect(url_for("index"))
+
+
 @app.route("/monitor/")
+@login_required
 def monitor():
     return render_template("monitor.html")
 
 
-@app.route("/publish_question/")
-def publish_question():
-    return render_template("publish_question.html")
+@app.context_processor
+def my_context_processor():
+    user_id = session.get("user_id")
+    if user_id:
+        user = User.query.filter(User.id == user_id).first()
+        if user:
+            return {"user": user}
+    return {}
+
+
+@app.errorhandler(404)
+def page_not_found(error):
+    return 'This page does not exist', 404
 
 
 if __name__ == "__main__":
