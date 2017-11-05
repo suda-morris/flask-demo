@@ -2,7 +2,7 @@
 import os
 from datetime import timedelta
 
-DEBUG = True
+DEBUG = False
 
 SECRET_KEY = os.urandom(24)
 PERMANENT_SESSION_LIFETIME = timedelta(days=7)
