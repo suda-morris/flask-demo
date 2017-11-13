@@ -4,12 +4,24 @@ from sqlalchemy import or_
 
 import config
 from decorators import login_required
-from exts import db
+from exts import db, mqtt
 from models import User, Question, Answer
 
 app = Flask(__name__)
 app.config.from_object(config)
 db.init_app(app)
+mqtt.init_app(app)
+
+mqtt.subscribe('home/mytopic')
+
+
+@mqtt.on_message()
+def handle_mqtt_message(client, userdata, message):
+    data = dict(
+        topic=message.topic,
+        payload=message.payload.decode()
+    )
+    print(data)
 
 
 @app.route("/")
@@ -134,4 +146,4 @@ def page_not_found(error):
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host="0.0.0.0")
