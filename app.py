@@ -1,5 +1,7 @@
 # encoding: utf-8
+
 from flask import Flask, render_template, request, redirect, url_for, session, g
+from pyecharts import Bar, Pie
 from sqlalchemy import or_
 
 import config
@@ -120,7 +122,16 @@ def search():
 @app.route("/monitor/")
 @login_required
 def monitor():
-    return render_template("monitor.html")
+    bar = Bar(u"柱状图", u"副标题", width=750)
+    bar.add("服装", ["衬衫", "羊毛衫", "雪纺衫", "裤子", "高跟鞋", "袜子"], [5, 20, 36, 10, 75, 90],
+            mark_line=["average"], mark_point=["max", "min"])
+
+    pie = Pie(u"饼图", u"副标题", width=750)
+    pie.add("商品A", ["衬衫", "羊毛衫", "雪纺衫", "裤子", "高跟鞋", "袜子"], [11, 12, 13, 10, 10, 10], is_random=True,
+            rosetype="radius", is_label_show=True)
+
+    return render_template("monitor.html", bar_chart=bar.render_embed(), pie_chart=pie.render_embed(),
+                           script_list=bar.get_js_dependencies())
 
 
 @app.before_request
