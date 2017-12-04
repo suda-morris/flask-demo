@@ -43,3 +43,10 @@ class Answer(db.Model):
     author_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     question = db.relationship("Question", backref=db.backref("answers"), order_by=id.desc())
     author = db.relationship("User", backref=db.backref("answers"), order_by=id.desc())
+
+
+class Sensor(db.Model):
+    __tablename__ = "sensor"
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    temperature = db.Column(db.Float, nullable=False)
+    datetime = db.Column(db.DateTime, default=datetime.now)

@@ -1,2 +1,86 @@
-{% extends "base.html" %} {% block title %}监控{% endblock %} {% block head %} {% for jsfile_name in script_list %}
-<script src="{{ url_for('static',filename='js/echarts') }}/{{ jsfile_name }}.js"></script> {% endfor %} {% endblock %} {% block main %} {{bar_chart|safe}} {{pie_chart|safe}} {% endblock %}
+{% extends "base.html" %} {% block title %}监控{% endblock %} {% block head %}
+<script src="{{ url_for('static',filename='js/echarts/echarts.min.js') }}"></script>
+<script src="{{ url_for('static',filename='js/echarts/macarons.js') }}"></script> {% endblock %} {% block main %}
+<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+<div id="main" style="width: 800px;height:400px;"></div>
+<script type="text/javascript">
+    // 基于准备好的dom，初始化echarts实例
+    var dom = document.getElementById('main');
+    var myChart = echarts.init(dom, "macarons");
+    var option = {
+        title: {
+            text: "温度曲线"
+        },
+        toolbox: {
+            show: true,
+            feature: {
+                saveAsImage: {
+                    show: true
+                },
+                dataZoom: {
+                    show: true
+                },
+                restore: {
+                    show: true
+                }
+            }
+        },
+        tooltip: {
+            show: true,
+            trigger: "axis"
+        },
+        legend: {
+            data: ["温度"]
+        },
+        xAxis: {
+            data: []
+        },
+        yAxis: {},
+        dataZoom: [{
+            type: "slider",
+            start: 0,
+            end: 100
+        }],
+        series: [{
+            name: "温度",
+            type: 'line',
+            data: [],
+            markPoint: {
+                data: [
+                    { type: "max", name: "最高温度" },
+                    { type: "min", name: "最低温度" }
+                ]
+            },
+            markLine: {
+                data: [
+                    { type: "average", name: "平均温度" }
+                ]
+            }
+        }]
+    };
+
+    // 显示标题，图例和空的坐标轴
+    myChart.setOption(option);
+
+    //动态更新图表数据
+    function getData() {
+        $.ajax({
+            type: "get",
+            url: "/monitor/temperature",
+            dataType: "json",
+            success: function (data) {
+                myChart.setOption({
+                    xAxis: {
+                        data: data.categories
+                    },
+                    series: [{
+                        name: "温度",
+                        data: data.data
+                    }]
+                });
+            }
+        });
+    }
+
+    setInterval(getData, 1000);;
+</script> {% endblock %}

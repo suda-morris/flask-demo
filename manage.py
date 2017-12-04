@@ -4,7 +4,7 @@ from flask_script import Manager
 
 from app import app
 from exts import db
-from models import User, Question, Answer
+from models import User, Question, Answer, Sensor
 
 manager = Manager(app)
 
