@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import json
+import random
 
 from flask import Flask, render_template, request, redirect, url_for, session, g
 from sqlalchemy import or_
@@ -8,7 +9,7 @@ from sqlalchemy import or_
 import config
 from decorators import login_required
 from exts import db, mqtt
-from models import User, Question, Answer
+from models import User, Question, Answer, Sensor
 
 app = Flask(__name__)
 app.config.from_object(config)
@@ -119,18 +120,33 @@ def search():
     return render_template("index.html", questions=questions)
 
 
+# @login_required
 @app.route("/monitor/")
-@login_required
 def monitor():
-    return render_template("monitor.html")
+    sensors = Sensor.query.order_by(db.desc(Sensor.datetime)).limit(60)
+    data = {"time": [], "temp": []}
+    for sensor in sensors:
+        dt = sensor.datetime
+        temp = sensor.temperature
+        dt_str = "/".join([str(dt.year), str(dt.month), str(dt.day)]) + " " + ":".join(
+            [str(dt.hour), str(dt.minute), str(dt.second)])
+        data["time"].append(dt_str)
+        data["temp"].append(temp)
+    data["time"].reverse()
+    data["temp"].reverse()
+    return render_template("monitor.html", data=data)
 
 
 @app.route("/monitor/<sensor>")
 def get_sensor_data(sensor):
     if sensor == "temperature":
-        data = {"categories": ["aa", "bb", "cc", "dd", "ee", "ff"],
-                "data": [5, 20, 36, 10, 10, 20]}
-        return json.dumps(data)
+        sensor = Sensor.query.order_by(db.desc(Sensor.datetime)).first()
+        dt = sensor.datetime
+        # temp = sensor.temperature
+        temp = round(random.uniform(5, 15), 2)
+        dt_str = "/".join([str(dt.year), str(dt.month), str(dt.day)]) + " " + ":".join(
+            [str(dt.hour), str(dt.minute), str(dt.second)])
+        return json.dumps({"time": dt_str, "temp": temp})
 
 
 @app.before_request

@@ -4,6 +4,10 @@
 <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
 <div id="main" style="width: 800px;height:400px;"></div>
 <script type="text/javascript">
+    var windowlen = 60;
+    var data = {{ data| tojson }};
+    var time = data.time;
+    var temp = data.temp;
     // 基于准备好的dom，初始化echarts实例
     var dom = document.getElementById('main');
     var myChart = echarts.init(dom, "macarons");
@@ -59,7 +63,6 @@
         }]
     };
 
-    // 显示标题，图例和空的坐标轴
     myChart.setOption(option);
 
     //动态更新图表数据
@@ -69,15 +72,23 @@
             url: "/monitor/temperature",
             dataType: "json",
             success: function (data) {
+                time.push(data.time);
+                temp.push(data.temp);
+                if (temp.length === windowlen) {
+                    time.shift();
+                    temp.shift();
+                }
                 myChart.setOption({
                     xAxis: {
-                        data: data.categories
+                        data: time
                     },
                     series: [{
                         name: "温度",
-                        data: data.data
+                        data: temp
                     }]
                 });
+            },
+            error: function (xhr, type) {
             }
         });
     }
