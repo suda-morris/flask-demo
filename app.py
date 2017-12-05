@@ -140,7 +140,7 @@ def monitor():
 @app.route("/monitor/<sensor>")
 def get_sensor_data(sensor):
     if sensor == "temperature":
-        sensors = Sensor.query.order_by(db.desc(Sensor.datetime)).limit(100)
+        sensors = Sensor.query.order_by(db.desc(Sensor.datetime)).limit(60)
         data = {"time": [], "temp": []}
         if sensors:
             for sensor in sensors:
