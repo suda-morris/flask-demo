@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 import json
-import random
 
 from flask import Flask, render_template, request, redirect, url_for, session, g
 from sqlalchemy import or_
@@ -125,28 +124,35 @@ def search():
 def monitor():
     sensors = Sensor.query.order_by(db.desc(Sensor.datetime)).limit(60)
     data = {"time": [], "temp": []}
-    for sensor in sensors:
-        dt = sensor.datetime
-        temp = sensor.temperature
-        dt_str = "/".join([str(dt.year), str(dt.month), str(dt.day)]) + " " + ":".join(
-            [str(dt.hour), str(dt.minute), str(dt.second)])
-        data["time"].append(dt_str)
-        data["temp"].append(temp)
-    data["time"].reverse()
-    data["temp"].reverse()
+    if sensors:
+        for sensor in sensors:
+            dt = sensor.datetime
+            temp = sensor.temperature
+            dt_str = "/".join([str(dt.year), str(dt.month), str(dt.day)]) + " " + ":".join(
+                [str(dt.hour), str(dt.minute), str(dt.second)])
+            data["time"].append(dt_str)
+            data["temp"].append(temp)
+        data["time"].reverse()
+        data["temp"].reverse()
     return render_template("monitor.html", data=data)
 
 
 @app.route("/monitor/<sensor>")
 def get_sensor_data(sensor):
     if sensor == "temperature":
-        sensor = Sensor.query.order_by(db.desc(Sensor.datetime)).first()
-        dt = sensor.datetime
-        # temp = sensor.temperature
-        temp = round(random.uniform(5, 15), 2)
-        dt_str = "/".join([str(dt.year), str(dt.month), str(dt.day)]) + " " + ":".join(
-            [str(dt.hour), str(dt.minute), str(dt.second)])
-        return json.dumps({"time": dt_str, "temp": temp})
+        sensors = Sensor.query.order_by(db.desc(Sensor.datetime)).limit(100)
+        data = {"time": [], "temp": []}
+        if sensors:
+            for sensor in sensors:
+                dt = sensor.datetime
+                temp = sensor.temperature
+                dt_str = "/".join([str(dt.year), str(dt.month), str(dt.day)]) + " " + ":".join(
+                    [str(dt.hour), str(dt.minute), str(dt.second)])
+                data["time"].append(dt_str)
+                data["temp"].append(temp)
+            data["time"].reverse()
+            data["temp"].reverse()
+        return json.dumps(data)
 
 
 @app.before_request

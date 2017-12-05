@@ -4,7 +4,6 @@
 <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
 <div id="main" style="width: 800px;height:400px;"></div>
 <script type="text/javascript">
-    var windowlen = 60;
     var data = {{ data| tojson }};
     var time = data.time;
     var temp = data.temp;
@@ -26,7 +25,10 @@
                 },
                 restore: {
                     show: true
-                }
+                },
+                dataView: {
+                    readOnly: false
+                },
             }
         },
         tooltip: {
@@ -72,12 +74,8 @@
             url: "/monitor/temperature",
             dataType: "json",
             success: function (data) {
-                time.push(data.time);
-                temp.push(data.temp);
-                if (temp.length === windowlen) {
-                    time.shift();
-                    temp.shift();
-                }
+                time = data.time;
+                temp = data.temp;
                 myChart.setOption({
                     xAxis: {
                         data: time
